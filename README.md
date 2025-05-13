@@ -1,10 +1,10 @@
-Hiera-based Puppet ENC
+Hiera-based OpenVox ENC
 ======================
 
-This project acts as a miniature Puppet ENC in YAML files, made
+This project acts as a miniature OpenVox ENC in YAML files, made
 accessible by Hiera. This makes server-side node configuration
 (e.g. environments, custom node parameters) easy to edit in the same
-way (and same place) as normal Hiera-based Puppet data.
+way (and same place) as normal Hiera-based OpenVox data.
 
 Since an exec-based ENC simply prints out YAML when passed a node name,
 the script just gets the merged hierarchical data with Hiera and then
@@ -13,20 +13,20 @@ prints.
 Usage
 -----
 
-Deploy this repository on the puppetmaster as `/etc/puppet/hiera-enc`,
+Deploy this repository on the openvox server as `/etc/openvox/hiera-enc`,
 and add the following lines to `puppet.conf`:
 
     [master]
         node_terminus = exec
-        external_nodes = /etc/puppet/hiera-enc/enc
+        external_nodes = /etc/openvox/hiera-enc/enc
 
 Node configuration may be made in
 `/etc/puppet/hiera-enc/nodes/<fqdn>.yaml`, or defaults set in the
 `default.yaml` file.
 
 Check the data returned for a given node by executing `./enc <fqdn>`,
-just as Puppet itself will do. Note that the `DEBUG` lines are printed 
-to STDERR and are not parsed by Puppet.
+just as OpenVox itself will do. Note that the `DEBUG` lines are printed 
+to STDERR and are not parsed by OpenVox.
 
 Example
 -------

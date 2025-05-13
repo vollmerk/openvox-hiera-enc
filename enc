@@ -18,21 +18,56 @@
 require 'hiera'
 require 'yaml'
 
+## Itterative role gathering
+def gather_roles(role)
+  scope = { 'clientcert' => ARGV[0], 'role' => role, 'domain' => $domain }
+  roles = $hiera.lookup('roles',nil,scope)
+  results = []
+  if roles
+    roles.each do |role|
+      value = gather_roles(role)
+      results = results + value
+    end
+  end
+  return results
+end
+
 # Query scope
-scope = { 'clientcert' => ARGV[0], 'fqdn' => ARGV[0], 'hostname' => ARGV[0] }
-
-# Hiera interface
-hiera = Hiera.new(:config => '/etc/puppet/hiera-enc/hiera-enc.yaml')
-
+/^[^\.]+\.(.+)$/ =~ ARGV[0]
+$domain = $1 
+scope = { 'clientcert' => ARGV[0], 'role' => '', 'domain' => $domain}
 lookup_values = ['environment', 'parameters', 'classes']
-
 result = {}
 
-lookup_values.each do |value|
-  hiera_value = hiera.lookup(value, nil, scope)
+## Lookup the non-role information
+scope = { 'clientcert' => ARGV[0], 'role' => nil, 'domain' => $domain }
+$hiera = Hiera.new(:config => '/etc/puppet/hiera-enc/host-hiera.yaml')
+lookup_values.each do |value| 
+  hiera_value = $hiera.lookup(value,nil,scope)
   if hiera_value
     result[value] = hiera_value
   end
 end
+
+## Lookup based on Role(s) recursively first
+roles = $hiera.lookup('roles',nil,scope)
+if roles
+  # Switch to the Role Hiera at this point, we're done looking at host data
+  $hiera = Hiera.new(:config => '/etc/puppet/hiera-enc/role-hiera.yaml')
+  roles.each do |role|
+    roles = roles + gather_roles(role)
+  end
+  ## Once we have all of the roles, for everything, and combine
+  roles.each do |role|
+    scope = { 'clientcert' => ARGV[0], 'role' => role, 'domain' => $domain }
+    lookup_values.each do |value|
+      hiera_value = $hiera.lookup(value, nil, scope)
+      if hiera_value
+        result[value] = hiera_value
+      end
+    end
+  end
+end
+
 
 puts result.to_yaml

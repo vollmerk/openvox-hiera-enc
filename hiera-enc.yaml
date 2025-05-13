@@ -4,7 +4,9 @@
 :yaml:
   :datadir: /etc/puppet/hiera-enc/nodes
 :hierarchy:
-  - "%{clientcert}"
-  - "%{fqdn}"
-  - "%{hostname}"
-  - "default"
+  - "host/%{domain}/%{clientcert}.yaml"
+  - "host/%{domain}/common.yaml"
+  - "role/%{domain}/%{role}/%{clientcert}.yaml"
+  - "role/%{domain}/%{role}/common.yaml"
+  - "role/%{role}/common.yaml"
+  - "common.yaml"
