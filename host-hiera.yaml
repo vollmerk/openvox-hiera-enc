@@ -6,7 +6,4 @@
 :hierarchy:
   - "host/%{domain}/%{clientcert}.yaml"
   - "host/%{domain}/common.yaml"
-  - "role/%{domain}/%{role}/%{clientcert}.yaml"
-  - "role/%{domain}/%{role}/common.yaml"
-  - "role/%{role}/common.yaml"
   - "common.yaml"

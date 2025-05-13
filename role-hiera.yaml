@@ -1,0 +1,9 @@
+---
+:backends:
+  - yaml
+:yaml:
+  :datadir: /etc/puppet/hiera-enc/nodes
+:hierarchy:
+  - "role/%{domain}/%{role}/%{clientcert}.yaml"
+  - "role/%{domain}/%{role}/common.yaml"
+  - "role/%{role}/common.yaml"
