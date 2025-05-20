@@ -76,12 +76,13 @@ if roles
   roles.each do |role,enabled|
     if enabled == true
       if !$final_roles['loaded'].has_key(role)
-      result_roles = result_roles + gather_roles(role)
+       result_roles = result_roles + gather_roles(role)
+      end
     end
   end
   ## Itterate over the roles one last time and nuke any that have been false'd at any point
   ## during the role loading
-  results_roles['false'].each |role,enabled| 
+  results_roles['false'].each do |role,enabled| 
     results_roles['true'].delete(role) 
   end
   ## Once we have all of the roles, for everything, and combine
