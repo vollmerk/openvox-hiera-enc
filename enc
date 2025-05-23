@@ -18,17 +18,24 @@
 require 'hiera'
 require 'yaml'
 
+class ::Hash
+  def merge_deep(second)
+    merger = proc { |_, v1, v2| Hash === v1 && Hash === v2 ? v1.merge(v2, &merger) : Array === v1 && Array === v2 ? v1 | v2 : [:undefined, nil, :nil].include?(v2) ? v1 : v2 }
+    merge(second.to_h, &merger)
+  end
+end
+
 ## Itterative role gathering
 def gather_roles(source_role)
   scope = { 'clientcert' => ARGV[0], 'role' => source_role, 'domain' => $domain }
   roles = $hiera.lookup('roles',nil,scope)
   ## Note that we've loaded "this" role
   $final_roles['loaded'][source_role] = true
-  current_roles = {}
-  results = {}
+  current_roles = { 'true'=> { source_role=>true }}
+  results = { 'true'=>{},'false'=>{}}
   if roles
     roles.each do |role,enabled|
-      if enabled == 'true'
+      if enabled
         current_roles['true'][role] = true
       else
         current_roles['false'][role] = true
@@ -37,15 +44,15 @@ def gather_roles(source_role)
     ## Itterate over the "True" roles that we want to load, and remove any that have been falsed
     # somewhere, this potentialy makes sense as a distinct def, but for now it will be duplicated in code
     current_roles['true'].each do |role,enabled|
-      if current_roles['false'][role] == true
+      if current_roles['false'][role]
         current_roles['true'].delete(role)
-      elsif !$final_roles['loaded'].has_key(role)
+      elsif !$final_roles['loaded'].has_key?(role)
         value = gather_roles(role)
-        results = results + value
+        results = results.merge(value)
       end
     end
   end
-  results = results + current_roles
+  results['true'] = results['true'].merge(current_roles['true'])
   return results
 end
 
@@ -54,12 +61,13 @@ end
 $domain = $1 
 scope = { 'clientcert' => ARGV[0], 'role' => '', 'domain' => $domain}
 lookup_values = ['environment', 'parameters', 'classes']
-hiera_results = {}
+hiera_results = { 'environment'=>'','parameters'=>{},'classes'=>[]}
+results_roles = { 'false'=>{},'true'=>{}}
 # We need this to be global, so that we can check and see what's already been loaded once
 $final_roles = {'loaded'=>{},'true'=>{},'false'=>{}}
 
 ## Lookup the non-role information
-scope = { 'clientcert' => ARGV[0], 'role' => nil, 'domain' => $domain }
+scope = { 'clientcert' => ARGV[0], 'roles' => nil, 'domain' => $domain }
 $hiera = Hiera.new(:config => '/etc/puppet/hiera-enc/host-hiera.yaml')
 lookup_values.each do |value| 
   hiera_value = $hiera.lookup(value,nil,scope)
@@ -70,13 +78,15 @@ end
 
 ## Lookup based on Role(s) recursively first
 roles = $hiera.lookup('roles',nil,scope)
+$hiera = Hiera.new(:config => '/etc/puppet/hiera-enc/role-hiera.yaml')
 if roles
   # Switch to the Role Hiera at this point, we're done looking at host data
-  $hiera = Hiera.new(:config => '/etc/puppet/hiera-enc/role-hiera.yaml')
   roles.each do |role,enabled|
-    if enabled == true
-      if !$final_roles['loaded'].has_key(role)
-       result_roles = result_roles + gather_roles(role)
+    if enabled
+      if $final_roles['loaded'].has_key?(role)
+      else
+       values = gather_roles(role)
+       results_roles = results_roles.merge_deep(gather_roles(role))
       end
     end
   end
@@ -91,7 +101,13 @@ if roles
     lookup_values.each do |value|
       hiera_value = $hiera.lookup(value, nil, scope)
       if hiera_value
-        hiera_results[value] = results + hiera_value
+	if value == 'environment'
+	  hiera_results[value] = hiera_value
+        elsif value == 'classes'
+          hiera_results[value] = hiera_results[value] + hiera_value
+        elsif value == 'parameters'
+          hiera_results[value] = hiera_results[value].merge_deep(hiera_value)
+        end
       end
     end
   end
