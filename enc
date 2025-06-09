@@ -68,7 +68,7 @@ $final_roles = {'loaded'=>{},'true'=>{},'false'=>{}}
 
 ## Lookup the non-role information
 scope = { 'clientcert' => ARGV[0], 'roles' => nil, 'domain' => $domain }
-$hiera = Hiera.new(:config => '/etc/puppet/hiera-enc/host-hiera.yaml')
+$hiera = Hiera.new(:config => '/etc/openvox/hiera-enc/host-hiera.yaml')
 lookup_values.each do |value| 
   hiera_value = $hiera.lookup(value,nil,scope)
   if hiera_value
@@ -78,7 +78,7 @@ end
 
 ## Lookup based on Role(s) recursively first
 roles = $hiera.lookup('roles',nil,scope)
-$hiera = Hiera.new(:config => '/etc/puppet/hiera-enc/role-hiera.yaml')
+$hiera = Hiera.new(:config => '/etc/openvox/hiera-enc/role-hiera.yaml')
 if roles
   # Switch to the Role Hiera at this point, we're done looking at host data
   roles.each do |role,enabled|
