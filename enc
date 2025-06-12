@@ -77,6 +77,7 @@ lookup_values.each do |value|
 end
 
 ## Lookup based on Role(s) recursively first
+full_roles = Array.new
 roles = $hiera.lookup('roles',nil,scope)
 $hiera = Hiera.new(:config => '/etc/openvox/hiera-enc/role-hiera.yaml')
 if roles
@@ -97,6 +98,7 @@ if roles
   end
   ## Once we have all of the roles, for everything, and combine
   results_roles['true'].each do |role,enabled|
+    full_roles.push(role)
     scope = { 'clientcert' => ARGV[0], 'role' => role, 'domain' => $domain }
     lookup_values.each do |value|
       hiera_value = $hiera.lookup(value, nil, scope)
@@ -113,5 +115,6 @@ if roles
   end
 end
 
-
+## Add the full list of roles to the parameters as enc_roles: []
+hiera_results['parameters']['enc_roles'] = full_roles
 puts hiera_results.to_yaml
