@@ -43,12 +43,14 @@ def gather_roles(source_role)
     end
     ## Itterate over the "True" roles that we want to load, and remove any that have been falsed
     # somewhere, this potentialy makes sense as a distinct def, but for now it will be duplicated in code
-    current_roles['true'].each do |role,enabled|
-      if current_roles['false'][role]
-        current_roles['true'].delete(role)
-      elsif !$final_roles['loaded'].has_key?(role)
-        value = gather_roles(role)
-        results = results.merge(value)
+    if current_roles.key?('true')
+      current_roles['true'].each do |role,enabled|
+        if current_roles['false'][role]
+          current_roles['true'].delete(role)
+        elsif !$final_roles['loaded'].has_key?(role)
+          value = gather_roles(role)
+          results = results.merge(value)
+        end
       end
     end
   end
