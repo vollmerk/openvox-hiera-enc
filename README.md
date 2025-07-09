@@ -89,6 +89,16 @@ merged hash of these values:
     DEBUG: 2014-07-11 13:04:24 +0200: Looking for data source default
     DEBUG: 2014-07-11 13:04:24 +0200: Found environment in default
     ---
+    environment: R20250701
     parameters:
-      type: workstation
-    environment: production
+     servicegroup: Management
+     location: CloudWest
+     enc_roles:
+      - Base
+      - Management
+    classes:
+     - base
+     - security::access
+     - accounts
+     - firewall
+     - puppet

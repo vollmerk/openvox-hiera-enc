@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
 #
 # Copyright 2014 Peter van Zetten
+# Copyright 2025 Karl Vollmer (Role, Caching Support)
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by

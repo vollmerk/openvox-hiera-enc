@@ -1,0 +1,9 @@
+---
+hiera:
+ host: '/etc/openvox/hiera-enc/host-hiera.yaml'
+ role: '/etc/openvox/hiera-enc/role-hiera.yaml'
+# Compiled HOST ENC Results caching
+cache:
+ enabled: true
+ ttl: 1800
+ dir: '/var/cache/openvox-hiera/'
