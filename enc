@@ -70,7 +70,7 @@ end
 $domain = $1 
 scope = { 'clientcert' => ARGV[0], 'role' => '', 'domain' => $domain}
 lookup_values = ['environment', 'parameters', 'classes']
-hiera_results = { 'environment'=>'','parameters'=>{},'classes'=>[]}
+hiera_results = { 'parameters'=>{},'classes'=>[]}
 results_roles = { 'false'=>{},'true'=>{}}
 # We need this to be global, so that we can check and see what's already been loaded once
 $final_roles = {'loaded'=>{},'true'=>{},'false'=>{}}
