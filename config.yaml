@@ -2,6 +2,6 @@
 ## Configuration File for the OpenVox ENC external node configuration
 # The enc-cached does not use this configuration file, and requires CLI to indicate
 # desired cache TTL and Cache location
-enc_path: '/etc/openvox/hiera-enc'
+enc_path: /etc/openvox/hiera-enc
 debug: true
-
+cachetime: 900

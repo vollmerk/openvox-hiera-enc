@@ -1,1 +1,14 @@
 #!/bin/bash
+# Try to Grep out the cache dir, and the cache time
+## Look at the time vs the Mtime of the cached file, and re-generate if needed. If the file doesn't exist then definitely run it
+CACHE=`grep cachetime config.yaml | cut -d ':' -f 2`
+BASEPATH=`grep enc_path config.yaml | cut -d ':' -f 2`
+
+echo "Looking for ${BASEPATH}/cache/${1}.yaml"
+if [ -e ${BASEPATH}/cache/${1}.yaml ]; then
+ ## Check the Mtime, and see if it's older than the cache
+ echo "Cached file found, checking to see if it's too old\n"
+else
+ ## Run the Ruby app, and generate and return the computed result
+ `./enc ${1}`
+fi
