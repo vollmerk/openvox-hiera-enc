@@ -75,9 +75,13 @@ results_roles = { 'false'=>{},'true'=>{}}
 # We need this to be global, so that we can check and see what's already been loaded once
 $final_roles = {'loaded'=>{},'true'=>{},'false'=>{}}
 
+# Load in the configuration file for the ENC
+config_file_path = File.expand_path('../config.yaml',__FILE__)
+config = YAML.load_file(config_file_path)
+
 ## Lookup the non-role information
 scope = { 'clientcert' => ARGV[0], 'roles' => nil, 'domain' => $domain }
-$hiera = Hiera.new(:config => '/etc/openvox/hiera-enc/host-hiera.yaml')
+$hiera = Hiera.new(:config => config['enc_path'] + '/host-hiera.yaml')
 lookup_values.each do |value| 
   hiera_value = $hiera.lookup(value,nil,scope)
   if hiera_value
@@ -88,7 +92,7 @@ end
 ## Lookup based on Role(s) recursively first
 full_roles = Array.new
 roles = $hiera.lookup('roles',nil,scope)
-$hiera = Hiera.new(:config => '/etc/openvox/hiera-enc/role-hiera.yaml')
+$hiera = Hiera.new(:config => config['enc_path'] + '/role-hiera.yaml')
 if roles
   # Switch to the Role Hiera at this point, we're done looking at host data
   roles.each do |role,enabled|
@@ -126,4 +130,8 @@ end
 
 ## Add the full list of roles to the parameters as enc_roles: []
 hiera_results['parameters']['enc_roles'] = full_roles
+# Cache the results, so that we don't have to rebuild it all of the time
+cache_file = File.new(config['enc_path'] + '/cache/' + ARGV[0] + '.yaml')
+cache_file.puts(hiera_results.to_yaml)
+cache_file.close
 puts hiera_results.to_yaml
