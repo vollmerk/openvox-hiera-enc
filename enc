@@ -130,6 +130,8 @@ end
 
 ## Add the full list of roles to the parameters as enc_roles: []
 hiera_results['parameters']['enc_roles'] = full_roles
+# Dedup classes
+hiera_results['classes'] = hiera_results['classes'].uniq
 # Cache the results, so that we don't have to rebuild it all of the time
 cache_file = File.new(config['enc_path'] + '/cache/' + ARGV[0] + '.yaml','w')
 cache_file.puts(hiera_results.to_yaml)
