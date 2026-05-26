@@ -9,6 +9,15 @@ echo "Looking for ${BASEPATH}/cache/${1}.yaml"
 if [ -e ${BASEPATH}/cache/${1}.yaml ]; then
  ## Check the Mtime, and see if it's older than the cache
  echo "Cached file found, checking to see if it's too old\n"
+ MTIME=`stat -c %Y ${BASEPATH}/cache/${1}.yaml`
+ NOW=`date +%s`
+ AGE=$((NOW - MTIME))
+ if [[ $AGE -gt $CACHE ]]; then
+  echo "File stale - rerunning"
+  `./enc ${1}`
+ else
+  `cat ${BASEPATH}/cache/${1}.yaml`
+ fi
 else
  ## Run the Ruby app, and generate and return the computed result
  `./enc ${1}`
