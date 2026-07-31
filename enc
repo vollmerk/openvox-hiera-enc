@@ -26,6 +26,18 @@ class ::Hash
   end
 end
 
+## Allows us to set global log behavior
+def hiera_yaml_config(filename,debug=false)
+ hiera_yaml = File.realpath(filename)
+ config = YAML.load_file(hiera_yaml)
+ if debug
+  config[:logger] = 'console_logger'
+ else
+  config[:logger] = 'noop'
+ end
+ return config
+end
+
 ## Itterative role gathering
 def gather_roles(source_role)
   scope = { 'clientcert' => ARGV[0], 'role' => source_role, 'domain' => $domain }
@@ -81,7 +93,7 @@ config = YAML.load_file(config_file_path)
 
 ## Lookup the non-role information
 scope = { 'clientcert' => ARGV[0], 'roles' => nil, 'domain' => $domain }
-$hiera = Hiera.new(:config => config['enc_path'] + '/host-hiera.yaml')
+$hiera = Hiera.new(:config => hiera_yaml_config(config['enc_path'] + '/host-hiera.yaml',config['debug']))
 lookup_values.each do |value| 
   hiera_value = $hiera.lookup(value,nil,scope)
   if hiera_value
@@ -98,7 +110,7 @@ end
 ## Lookup based on Role(s) recursively first
 full_roles = Array.new
 roles = $hiera.lookup('roles',nil,scope)
-$hiera = Hiera.new(:config => config['enc_path'] + '/role-hiera.yaml')
+$hiera = Hiera.new(:config => hiera_yaml_config(config['enc_path'] + '/role-hiera.yaml',config['debug']))
 if roles
   # Switch to the Role Hiera at this point, we're done looking at host data
   roles.each do |role,enabled|
