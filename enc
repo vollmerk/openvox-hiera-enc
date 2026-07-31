@@ -85,7 +85,13 @@ $hiera = Hiera.new(:config => config['enc_path'] + '/host-hiera.yaml')
 lookup_values.each do |value| 
   hiera_value = $hiera.lookup(value,nil,scope)
   if hiera_value
-    hiera_results[value] = hiera_value
+    if value == 'classes'
+      hiera_results[value] = hiera_results[value] + hiera_value
+    elsif value == 'parameters'
+      hiera_results[value] = hiera_results[value].merge_deep(hiera_value)
+    else
+      hiera_results[value] = hiera_value
+    end
   end
 end
 
