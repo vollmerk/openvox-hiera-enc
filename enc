@@ -31,7 +31,7 @@ def hiera_yaml_config(filename,debug=false)
  hiera_yaml = File.realpath(filename)
  config = YAML.load_file(hiera_yaml)
  if debug
-  config[:logger] = 'console_logger'
+  config[:logger] = 'console'
  else
   config[:logger] = 'noop'
  end
@@ -95,7 +95,7 @@ config = YAML.load_file(config_file_path)
 scope = { 'clientcert' => ARGV[0], 'roles' => nil, 'domain' => $domain }
 $hiera = Hiera.new(:config => hiera_yaml_config(config['enc_path'] + '/host-hiera.yaml',config['debug']))
 lookup_values.each do |value| 
-  hiera_value = $hiera.lookup(value,nil,scope)
+  hiera_value = $hiera.lookup(value,nil,scope,nil,:hash)
   if hiera_value
     if value == 'classes'
       hiera_results[value] = hiera_results[value] + hiera_value
