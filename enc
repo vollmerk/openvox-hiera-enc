@@ -131,8 +131,8 @@ if roles
   results_roles['true'].each do |role,enabled|
     full_roles.push(role)
     scope = { 'clientcert' => ARGV[0], 'role' => role, 'domain' => $domain }
-    lookup_values.each do |value|
-      hiera_value = $hiera.lookup(value, nil, scope)
+    lookup_values.each do |mergemethod,value|
+      hiera_value = $hiera.lookup(value, nil, scope,nil,mergemethod)
       if hiera_value
 	if value == 'environment'
 	  hiera_results[value] = hiera_value
