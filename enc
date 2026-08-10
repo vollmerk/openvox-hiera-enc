@@ -81,7 +81,7 @@ end
 /^[^\.]+\.(.+)$/ =~ ARGV[0]
 $domain = $1 
 scope = { 'clientcert' => ARGV[0], 'role' => '', 'domain' => $domain}
-lookup_values = [':priority'=>'environment', ':hash'=>'parameters', ':array'=>'classes']
+lookup_values = {':priority'=>'environment', ':hash'=>'parameters', ':array'=>'classes'}
 hiera_results = { 'parameters'=>{},'classes'=>[]}
 results_roles = { 'false'=>{},'true'=>{}}
 # We need this to be global, so that we can check and see what's already been loaded once
