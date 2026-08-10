@@ -95,7 +95,7 @@ config = YAML.load_file(config_file_path)
 scope = { 'clientcert' => ARGV[0], 'roles' => nil, 'domain' => $domain }
 $hiera = Hiera.new(:config => hiera_yaml_config(config['enc_path'] + '/host-hiera.yaml',config['debug']))
 lookup_values.each do |mergemethod,value| 
-  hiera_value = $hiera.lookup(value,nil,scope,nil,mergementhod)
+  hiera_value = $hiera.lookup(value,nil,scope,nil,mergemethod)
   if hiera_value
     if value == 'classes'
       hiera_results[value] = hiera_results[value] + hiera_value
