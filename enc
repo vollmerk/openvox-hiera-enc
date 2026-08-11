@@ -81,7 +81,7 @@ end
 /^[^\.]+\.(.+)$/ =~ ARGV[0]
 $domain = $1 
 scope = { 'clientcert' => ARGV[0], 'role' => '', 'domain' => $domain}
-lookup_values = {':priority'=>'environment', ':hash'=>'parameters', ':array'=>'classes'}
+lookup_values = {'environment'=>:priority, 'parameters'=>:hash, 'classes'=>:array}
 hiera_results = { 'parameters'=>{},'classes'=>[]}
 results_roles = { 'false'=>{},'true'=>{}}
 # We need this to be global, so that we can check and see what's already been loaded once
@@ -94,7 +94,7 @@ config = YAML.load_file(config_file_path)
 ## Lookup the non-role information
 scope = { 'clientcert' => ARGV[0], 'roles' => nil, 'domain' => $domain }
 $hiera = Hiera.new(:config => hiera_yaml_config(config['enc_path'] + '/host-hiera.yaml',config['debug']))
-lookup_values.each do |mergemethod,value| 
+lookup_values.each do |value,mergemethod| 
   hiera_value = $hiera.lookup(value,nil,scope,nil,mergemethod)
   if hiera_value
     if value == 'classes'
@@ -131,7 +131,7 @@ if roles
   results_roles['true'].each do |role,enabled|
     full_roles.push(role)
     scope = { 'clientcert' => ARGV[0], 'role' => role, 'domain' => $domain }
-    lookup_values.each do |mergemethod,value|
+    lookup_values.each do |value,mergemethod|
       hiera_value = $hiera.lookup(value, nil, scope,nil,mergemethod)
       if hiera_value
 	if value == 'environment'
