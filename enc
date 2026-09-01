@@ -44,6 +44,7 @@ def gather_roles(source_role)
   roles = $hiera.lookup('roles',nil,scope)
   ## Note that we've loaded "this" role
   $final_roles['loaded'][source_role] = true
+  $final_roles['true'][source_role] = true
   current_roles = { 'true'=> { source_role=>true }}
   results = { 'true'=>{},'false'=>{}}
   if roles
@@ -118,11 +119,11 @@ if roles
   end
   ## Itterate over the roles one last time and nuke any that have been false'd at any point
   ## during the role loading
-  results_roles['false'].each do |role,enabled| 
-    results_roles['true'].delete(role) 
+  $final_roles['false'].each do |role,enabled| 
+    $final_roles['true'].delete(role) 
   end
   ## Once we have all of the roles, for everything, and combine
-  results_roles['true'].each do |role,enabled|
+  $final_roles['true'].each do |role,enabled|
     full_roles.push(role)
     scope = { 'clientcert' => ARGV[0], 'role' => role, 'domain' => $domain }
     lookup_values.each do |value,mergemethod|
